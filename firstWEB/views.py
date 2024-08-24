@@ -96,8 +96,7 @@ def places_result(request):
 
     return render(request, 'places_result.html', context=context)
 
-def analysis(request):
-    return render(request,'analysis.html')
+
 
 def forecast(request):
 
