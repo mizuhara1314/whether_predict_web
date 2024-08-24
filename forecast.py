@@ -10,90 +10,67 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
-from keras import backend as K
 import base64
 from io import BytesIO,StringIO
 
-df = pd.read_csv('t_pm25.csv',encoding='utf-8')
 
-def create_dataset(dataset,look_back = 100):
-    dataX,dataY = [],[]
-    for i in range(len(dataset)-look_back):    #  i 从 0 ：3548 ，dataX :0-100，1-101 ,dataY :100,101,102..
-        a = dataset[i:(i+look_back),0]
-        dataX.append(a)
-        dataY.append(dataset[i+look_back,0])
-    return np.array(dataX),np.array(dataY)
+
 
 def get_forecast():
-
+    df = pd.read_csv('t_pm25.csv',encoding='utf-8')
+    
     df['time'] = pd.to_datetime(df['time'])
     df_gd = df[df['place'] == '济南市（总）']
     data = df_gd[df['time'].dt.hour.isin(np.arange(8, 10))]
-    AQI = data.AQI
-    dataset = AQI.values
+    data['time'] = data['time'].apply(lambda x: x.timestamp())
+    #訓練集處理
+    x= data.drop(['AQI','place','city','time_slot','空气质量'], axis=1)
+    y= data['AQI']
 
+        # 数据归一化
+    scaler = MinMaxScaler()
+    X_scaled = scaler.fit_transform(x)
+    y_scaled = scaler.fit_transform(y.values.reshape(-1, 1))
 
-    # 设置随机种子
-    np.random.seed(7)
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    # 找到分割索引，将数据分为训练集和测试集
+    split_index = int(len(X_scaled) * 0.9)  # 90% 的数据用于训练，10% 的数据用于测试
 
-    # 数据集归一化
-    dataset = scaler.fit_transform(dataset.reshape(-1, 1))
-    train = dataset
+    X_train = X_scaled[:split_index]
+    X_test = X_scaled[split_index:]
+    y_train = y_scaled[:split_index]
+    y_test = y_scaled[split_index:]
+    # 转换数据形状以适应LSTM模型 (样本数, 时间步数, 特征数)
+    n_steps = 1  # 假设每个样本有1个时间步
+    n_features = X_train.shape[1]
+    X_train_reshaped = X_train.reshape((X_train.shape[0], n_steps, n_features))
+    X_test_reshaped = X_test.reshape((X_test.shape[0], n_steps, n_features))
+    data = {'layer1': 259, 'layer2': 410, 'layer3': 473, 'epochs': 7}
 
-    # 设置时间滑窗，创建训练集
-    look_back = 100
-    trainX, trainY = create_dataset(train, look_back)
-    # train = dataset
-
-    # reshape trainX 成LSTM可以接受的输入 (样本，时间步，特征)
-    trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-
-    # 搭建lstm网络
+        # 定义LSTM模型
     model = Sequential()
-    model.add(LSTM(1, input_shape=(1, look_back)))
-    # 输出节点为1，输入的每个样本的长度为look_back
-    model.add(Dense(1))  # 一个全连接层
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.add(LSTM(data['layer1'], activation='relu', return_sequences=True))
+    model.add(LSTM(data['layer2'], activation='relu', return_sequences=True))
+    model.add(LSTM(data['layer3'], activation='relu',return_sequences=False))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mse')
 
-    # 预测训练集
-    trainPredict = model.predict(trainX)
+    # 训练模型
+    model.fit(X_train_reshaped, y_train, epochs=data['epochs'], batch_size=20)
 
-    testx = [0.] * (7 + look_back)  # testx 为107个数据  列表
-    testx[0:look_back] = train[-look_back:]  # testx 0：100个数据是 train(dataset) 倒数100个
-    testx = K.cast_to_floatx(testx)
-    testx = np.array(testx)  # 把testx变为一个数组 ，二维(1,107)
-    testPredict = [0.] * 7  # testPredict 是一个 7 个数据的列表
-    for i in range(7):
-        Xtest = testx[-look_back:]  # Xtest 是testx -100到最后的数据，共100个
-        Xtest = np.reshape(Xtest, (1, 1, look_back))
-        testy = model.predict(Xtest)
-        testx[look_back + i] = testy
-        testPredict[i] = testy
-    testPredict = np.array(testPredict)
-    testPredict = np.reshape(testPredict, (7, 1))
+    y_pred_scaled = model.predict(X_test_reshaped)
+    y_pred = scaler.inverse_transform(y_pred_scaled)
 
-    # 反标准化
-    trainPredict = scaler.inverse_transform(trainPredict)
-    trainY = scaler.inverse_transform([trainY])
-    testPredict = scaler.inverse_transform(testPredict)
+    # 将 y_test 转换为原始范围
+    y_test_original = scaler.inverse_transform(y_test)
+    # 画图
+    plt.figure(figsize=(10, 6))
+    plt.plot(y_test_original, color = 'black', label = 'real')
+    plt.plot(y_pred, color = 'green', label = 'Predicted')
+    plt.title('空氣指數预测')
 
-    # 输出RMSE
-    trainScore = math.sqrt(mean_squared_error(trainY[0, :], trainPredict[:, 0]))
-    print('Train Score :%.2f RMSE' % (trainScore))
-
-    trainPredictPlot = np.reshape(np.array([None] * (len(dataset) + 7)), ((len(dataset) + 7), 1))
-    trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
-
-    testPredictPlot = np.reshape(np.array([None] * (len(dataset) + 7)), ((len(dataset) + 7), 1))
-    testPredictPlot[:, :] = np.nan
-    testPredictPlot[len(dataset):(len(dataset) + 7), :] = testPredict
-
-    plt.plot(scaler.inverse_transform(dataset), label='true')
-    plt.plot(trainPredictPlot, label='trainpredict')
-    plt.plot(testPredictPlot, label='testpredict')
-    plt.legend()  # 给图像加上图例
+    plt.xlabel('日期')
+    plt.ylabel('指数')
+    plt.legend()
 
     buffer = BytesIO()
     plt.savefig(buffer)
