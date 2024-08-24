@@ -8,11 +8,11 @@
   从pm25.csv中讀取數據訓練並做預測
   
 # 展示：
-  ![image](https://user-images.githubusercontent.com/54473942/179922300-bf0fa56c-c1fe-4209-ac22-252fd20e91aa.png)
-  
-  ![image](https://user-images.githubusercontent.com/54473942/179922517-eaccff06-76e5-463e-b977-efbd15c7f8aa.png)
+![image](https://github.com/user-attachments/assets/f157402d-c767-4bd8-82fc-a27859ce1b80)
 
-  ![image](https://user-images.githubusercontent.com/54473942/179922749-3911428c-a78d-4794-bfda-5c0cefeca1bb.png)
+![image](https://github.com/user-attachments/assets/c85389d4-d9ac-42be-b379-d1e6381af4d9)
+![image](https://github.com/user-attachments/assets/670078b1-46f5-42ba-bf66-702e5e0971bb)
+![image](https://github.com/user-attachments/assets/e79dccbc-c767-4af4-a380-127b412b21d4)
 
-  ![image](https://user-images.githubusercontent.com/54473942/179922852-98552705-9786-45b2-93c8-c2e75284c4f6.png)
+
 
