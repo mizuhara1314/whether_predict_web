@@ -5,7 +5,9 @@
   Python、Django、pandas、numpy、LSTM
   
 # 簡介：
-  从pm25.csv中讀取數據訓練並做預測
+  可从pm25.csv中讀取數據訓練並做預測
+# 未來改進 :
+  可改成使用預訓練的模型做訓練取代每次點擊都要訓練
   
 # 展示：
 ![image](https://github.com/user-attachments/assets/f157402d-c767-4bd8-82fc-a27859ce1b80)
