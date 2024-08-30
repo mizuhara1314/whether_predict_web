@@ -11,7 +11,7 @@
   1.在第一次執行 Django 專案之前，需要應用資料庫遷移：
   python manage.py migrate
   
-  2.之後運行項目只需啟動 Django 伺服器
+  2.之後運行項目只需啟動 Django 伺服器:
   python manage.py runserver
 
 # 未來改進 :
