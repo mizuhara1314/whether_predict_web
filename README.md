@@ -6,6 +6,13 @@
   
 # 簡介：
   可从pm25.csv中讀取數據訓練並做預測
+
+# 運行
+  1.在第一次執行 Django 專案之前，需要應用資料庫遷移：
+  python manage.py migrate
+  2.之後運行項目只需啟動 Django 伺服器
+  python manage.py runserver
+
 # 未來改進 :
   可改成使用預訓練的模型做訓練取代每次點擊都要訓練
   
