@@ -1,5 +1,5 @@
 # Weather-Prediction-System
-空氣質量監測系統
+幫大陸研究生做的空氣質量監測系統
 
 # 使用技術：
   Python、Django、pandas、numpy、LSTM
