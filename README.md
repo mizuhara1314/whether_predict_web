@@ -20,7 +20,7 @@
   python manage.py runserver
 ```
 # 未來改進 :
-  可改成使用預訓練的模型做訓練取代每次點擊都要訓練
+  可改成導入預訓練好的模型做預測取代每次點擊都要訓練完一次再預測
   
 # 展示：
 ![image](https://github.com/user-attachments/assets/f157402d-c767-4bd8-82fc-a27859ce1b80)
