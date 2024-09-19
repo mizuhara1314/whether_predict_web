@@ -21,6 +21,9 @@
 ```
 # 未來改進 :
   可改成導入預訓練好的模型做預測取代每次點擊都要訓練完一次再預測
+
+# 收穫 :
+透過dijango框架對環境變數文件跟配置(mode)文件的概念加深了
   
 # 展示：
 ![image](https://github.com/user-attachments/assets/f157402d-c767-4bd8-82fc-a27859ce1b80)
